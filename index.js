@@ -36,6 +36,16 @@ let userLocations = {
     latitude: 22.5273341,
     longitude: 88.3717237,
     timestamp: '2024-07-17T06:17:58.643Z'
+  },
+  Sagnik: {
+    latitude: 22.5273341,
+    longitude: 88.3717237,
+    timestamp: '2024-07-17T06:17:58.643Z'
+  },
+  Anusha: {
+    latitude: 22.5273341,
+    longitude: 88.3717237,
+    timestamp: '2024-07-17T06:17:58.643Z'
   }
 }; // In-memory storage for user locations
 
@@ -45,22 +55,38 @@ const users = [
   {
     id: 'Jibitesh',
     pin: 'Jibimax@123',
-    email: 'jibitesh.chakraborty.281102@gmail.com'
+    email: 'jibitesh.chakraborty.281102@gmail.com',
+    emergency:['jibiteshchakraborty74984@gmail.com']
   },
   {
     id: 'Nilanjana',
     pin: 'Nilanjana',
-    email: 'jibiteshchakraborty74984@gmail.com'
+    email: 'nilanjana.dutta.cse27@heritageit.edu.in',
+    emergency:['nilanjanadutta2004@gmail.com']
   },
   {
     id: 'Mohak',
     pin: 'Mohak',
-    email: 'jibirox123@gmail.com'
+    email: 'mohak.sarkar.cse27@heritageit.edu.in',
+    emergency:['mohaksarkar9733@gmail.com']
   },
   {
     id: 'Ashmit',
     pin: 'Ashmit',
-    email: 'jibitesh.chakraborty.cse24@heritageit.edu.in'
+    email: 'ashmit.paul.cse27@heritageit.edu.in',
+    emergency:['shan04p@gmail.com']
+  },
+  {
+    id: 'Sagnik',
+    pin: 'Sagnik',
+    email: 'sagnik.datta.aeie27@heritageit.edu.in',
+    emeregency:['sagnik.datta2020@gmail.com']
+  },
+  {
+    id: 'Anusha',
+    pin: 'Anusha',
+    email: 'anusha.pal.aeie27@heritageit.edu.in',
+    emergency:['palanusha82@gmail.com']
   }
 ];
 
@@ -124,6 +150,13 @@ app.post('/panic/:userId/:latitude/:longitude/:timestamp', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  const userx = users.find(u => u.id === userId);
+  if (!userx) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  const emeregency = userx.emergency;
+
   userLocations[userId] = {
     latitude: parseFloat(latitude),
     longitude: parseFloat(longitude),
@@ -177,14 +210,14 @@ app.post('/panic/:userId/:latitude/:longitude/:timestamp', async (req, res) => {
 
       const mailOptions = {
         from: 'jibiteshheva@gmail.com',
-        to: contact,
+        to: [contact,...emeregency],
         subject: 'HELP ALERT',
         text: `${userId} needs your help http://localhost:3000/request/${userId}`
       };
 
       return transporter.sendMail(mailOptions);
     }
-
+    console.log(mailOptions);
     return Promise.resolve(); // Return a resolved promise if user not found
   });
 
@@ -261,7 +294,7 @@ app.post('/alert/:userId/:latitude/:longitude/:timestamp', async (req, res) => {
     return res.status(404).json({ error: 'User not found' });
   }
 
-  const contact = user.email;
+  const contact = user.emergency;
   const lat = userLocations[userId].latitude;
   const long = userLocations[userId].longitude;
 
