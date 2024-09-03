@@ -109,6 +109,47 @@ app.post('/login/:userId/:pin', (req, res) => {
   }
 });
 
+app.post('/register/:userId/:password/:email/:contact1/:contact2/:contact3', (req, res) => {
+  const { userId, password, email, contact1, contact2, contact3 } = req.params;
+  
+  
+  if (!userId.trim() || !password.trim() || !email.trim()) {
+      return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  
+  const newUser = {
+      id: userId,
+      pin: password,
+      email: email
+  };
+
+  
+  const emergencyContacts = [];
+
+  
+  if (contact1.trim()) {
+      emergencyContacts.push(contact1);
+  }
+  if (contact2.trim()) {
+      emergencyContacts.push(contact2);
+  }
+  if (contact3.trim()) {
+      emergencyContacts.push(contact3);
+  }
+
+  
+  newUser.emergency = emergencyContacts;
+
+  
+  users.push(newUser);
+
+  
+  console.log(newUser);
+  return res.status(200).json(users);
+});
+
+
 app.post('/update-location/:userId/:latitude/:longitude/:timestamp', (req, res) => {
   const { userId, latitude, longitude, timestamp } = req.params;
 
@@ -199,6 +240,8 @@ app.post('/panic/:userId/:latitude/:longitude/:timestamp', async (req, res) => {
 
   console.log(locationsArray);
   console.log(panic);
+  const lat = userLocations[userId].latitude;
+  const long = userLocations[userId].longitude;
 
   // Send emails asynchronously
   const emailPromises = locationsArray.map(loc => {
@@ -212,7 +255,7 @@ app.post('/panic/:userId/:latitude/:longitude/:timestamp', async (req, res) => {
         from: 'jibiteshheva@gmail.com',
         to: [contact,...emeregency],
         subject: 'HELP ALERT',
-        text: `${userId} needs your help http://localhost:3000/request/${userId}`
+        text: `${userId} needs your help \n To confirm : http://localhost:3000/request/${userId} \n Location : https://www.google.com/maps?q=${lat},${long}`
       };
 
       return transporter.sendMail(mailOptions);
